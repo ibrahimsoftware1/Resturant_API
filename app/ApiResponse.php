@@ -6,12 +6,11 @@ trait ApiResponse
 {
     public function ok($message,$data=[]){
 
-        return $this->success($message,$data,200);
+        return $this->success($message,200);
     }
-    public function success($message,$data,$statusCode)
+    public function success($message,$statusCode)
     {
         return response()->json([
-            'data'=>$data,
             'message'=>$message,
             'status'=>$statusCode
         ],$statusCode);
