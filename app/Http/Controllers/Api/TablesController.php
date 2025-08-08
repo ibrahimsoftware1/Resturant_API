@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\ApiResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Filters\TableFilter;
 use App\Http\Resources\TableResource;
 use App\Http\Requests\StoreTablesRequest;
 use App\Http\Requests\UpdateTablesRequest;
 use App\Models\Tables;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use function Laravel\Prompts\error;
-
 class TablesController extends Controller
 {
     use ApiResponse;
@@ -18,24 +18,21 @@ class TablesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(TableFilter $filters)
     {
-        return TableResource::collection(Tables::all());
+        return TableResource::collection(Tables::filter($filters)->paginate());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreTablesRequest $request)
     {
-        //
+        $store=Tables::create($request->validated());
+
+        return new TableResource($store);
+
     }
 
     /**
@@ -52,21 +49,21 @@ class TablesController extends Controller
         }
 
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Tables $tables)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTablesRequest $request, Tables $tables)
+    public function update(UpdateTablesRequest $request,$table_id)
     {
-        //
+        try{
+            $table=Tables::findOrFail($table_id);
+            $table->update($request->validated());
+            return new TableResource($table);
+
+        }catch (ModelNotFoundException $exception){
+            return $this->error('the table with id '.$table_id.' not found' , 404);
+        }catch (AuthorizationException $exception){
+            return $this->error('you are not authorized to update this table', 403);
+        }
     }
 
     /**
@@ -82,7 +79,5 @@ class TablesController extends Controller
         catch (ModelNotFoundException $exception){
             return $this->error('the table with id '.$tables.' not found' , 404);
         }
-
-
     }
 }

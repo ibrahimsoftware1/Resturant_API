@@ -22,8 +22,7 @@ class StoreTablesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'table_id'=> 'required|integer|exists:tables,id',
-            'table_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'status' => 'required|in:reserved,occupied,available',
         ];
     }
