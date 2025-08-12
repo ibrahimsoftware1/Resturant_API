@@ -27,6 +27,7 @@ This is a RESTful API for managing a restaurant's operations including users, ro
 **Filtering & Pagination**: List endpoints support filtering (e.g., filtering orders by status) and pagination for efficient data retrieval.
 
 **Technologies:**
+
 Laravel Framework
 
 Sanctum for API token authentication
