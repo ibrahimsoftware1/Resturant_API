@@ -11,8 +11,9 @@ class TablesFactory extends Factory
 
     public function definition(): array
     {
+
         return [
-            'name' => fake()->unique()->word(),
+            'name' => 'Table ' . $this->faker->numberBetween(1, 20),
             'status' => fake()->randomElement(['reserved', 'occupied', 'available']),
             'created_at' => now(),
             'updated_at' => now(),

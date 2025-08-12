@@ -11,7 +11,7 @@ class UpdateOrdersRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class UpdateOrdersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'user_id' => 'sometimes|exists:users,id',
+            'table_id' => 'sometimes|exists:tables,id',
+            'status' => 'sometimes|string|max:255|in:pending,completed,cancelled,preparing,served',
         ];
     }
 }

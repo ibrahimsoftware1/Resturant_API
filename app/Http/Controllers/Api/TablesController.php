@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\TableFilter;
-use App\Http\Resources\TableResource;
 use App\Http\Requests\StoreTablesRequest;
 use App\Http\Requests\UpdateTablesRequest;
+use App\Http\Resources\TableResource;
 use App\Models\Tables;
+use App\Trait\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 class TablesController extends Controller
 {
     use ApiResponse;
@@ -20,7 +21,12 @@ class TablesController extends Controller
      */
     public function index(TableFilter $filters)
     {
-        return TableResource::collection(Tables::filter($filters)->paginate());
+        try{
+            $this->authorize('viewAny', Tables::class);
+            return TableResource::collection(Tables::filter($filters)->paginate());
+        }catch (AuthorizationException $exception){
+            return $this->error('you are not authorized to view tables', 403);
+        }
     }
 
 
@@ -29,10 +35,13 @@ class TablesController extends Controller
      */
     public function store(StoreTablesRequest $request)
     {
-        $store=Tables::create($request->validated());
-
-        return new TableResource($store);
-
+        try {
+            $this->authorize('create', Tables::class);
+            $store=Tables::create($request->validated());
+            return new TableResource($store);
+        }catch (AuthorizationException $exception){
+            return $this->error('you are not authorized to create a table', 403);
+        }
     }
 
     /**
@@ -42,12 +51,13 @@ class TablesController extends Controller
     {
         try{
             $tables=Tables::findOrFail($id);
+            $this->authorize('view', $tables);
             return new TableResource($tables);
         }catch (ModelNotFoundException $exception){
-
             return $this->error('the table with id '.$id.' not found' , 404);
+        }catch (AuthorizationException $exception){
+            return $this->error('you are not authorized to view this table', 403);
         }
-
     }
     /**
      * Update the specified resource in storage.
@@ -56,6 +66,7 @@ class TablesController extends Controller
     {
         try{
             $table=Tables::findOrFail($table_id);
+            $this->authorize('update', $table);
             $table->update($request->validated());
             return new TableResource($table);
 
@@ -73,11 +84,14 @@ class TablesController extends Controller
     {
         try {
             $tables= Tables::findOrfail($tables);
+            $this->authorize('delete', $tables);
             $tables->delete();
-            return $this->success('the table was deleted successfully', 200);
+            return ('the table was deleted successfully');
         }
         catch (ModelNotFoundException $exception){
             return $this->error('the table with id '.$tables.' not found' , 404);
+        }catch (AuthorizationException $exception){
+            return $this->error('you are not authorized to delete this table', 403);
         }
     }
 }

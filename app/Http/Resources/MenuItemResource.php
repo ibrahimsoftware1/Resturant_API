@@ -14,6 +14,20 @@ class MenuItemResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'Item ID' => $this->id,
+            'Name' => $this->name,
+            'Details'=>$this->when(
+                $request->routeIs('menu-items.show'),
+                [
+                    'Description' => $this->description,
+                    'Category' => $this->categories->name,
+                    'Price' => $this->price,
+                    'is Available' => $this->is_available,
+                ],
+            ),
+
+        ];
+
     }
 }

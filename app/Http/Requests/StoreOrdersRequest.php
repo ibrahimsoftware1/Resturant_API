@@ -11,7 +11,7 @@ class StoreOrdersRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class StoreOrdersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "user_id" => "required|integer|exists:users,id",
+            "table_id" => "required|integer|exists:tables,id",
+            "status" => "required|in:pending,completed,cancelled,preparing,served",
         ];
     }
 }

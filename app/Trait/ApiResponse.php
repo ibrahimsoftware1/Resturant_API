@@ -1,18 +1,19 @@
 <?php
 
-namespace App;
+namespace App\Trait;
 
 trait ApiResponse
 {
     public function ok($message,$data=[]){
 
-        return $this->success($message,200);
+        return $this->success($message,$data,200);
     }
-    public function success($message,$statusCode)
+    public function success($message,$data=[],$statusCode)
     {
         return response()->json([
             'message'=>$message,
-            'status'=>$statusCode
+            'data' => $data,
+            'status'=>$statusCode,
         ],$statusCode);
 
     }
