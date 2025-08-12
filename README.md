@@ -1,7 +1,11 @@
 **#Restaurant Management API**
+
 This is a RESTful API for managing a restaurant's operations including users, roles, tables, categories, menu items, orders, and order items. Built with Laravel and Sanctum for secure authentication, this API supports role-based access control with granular permissions to ensure proper authorization for each user role **(admin, manager, chef, waiter)**.
 
+
+
 **Key Features:**
+
 **User Authentication & Authorization**: Register, login, and logout with API tokens managed by Laravel Sanctum.
 
 **Role-Based Access Control**: Roles include admin, manager, chef, and waiter, each with specific permissions and abilities.
