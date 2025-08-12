@@ -1,4 +1,4 @@
-#Restaurant Management API
+**Restaurant Management API**
 
 This is a RESTful API for managing a restaurant's operations including **users**, **roles**, **tables**,**categories**, **menu items**, **orders**, and **order items**.
 
