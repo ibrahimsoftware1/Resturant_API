@@ -19,9 +19,6 @@ class OrderPolicy
         if( $user->tokenCan(Abilities::ORDERS_VIEW)){
             return true;
         }
-        else if($user->tokenCan(Abilities::ORDERS_VIEW_OWN)){
-                return true;
-             }
 
         return false;
     }
@@ -45,6 +42,9 @@ class OrderPolicy
      */
     public function create(User $user): bool
     {
+        if ($user->tokenCan(Abilities::ORDERS_CREATE)) {
+            return true;
+        }
         return false;
     }
     /**
@@ -52,26 +52,30 @@ class OrderPolicy
      */
     public function update(User $user, Orders $order): bool
     {
+
+        // Admin or full update ability
         if ($user->tokenCan(Abilities::ORDERS_UPDATE)) {
             return true;
         }
 
-        else if ($user->tokenCan(Abilities::ORDERS_UPDATE_SERVED)) {
-
-            if ($order->user_id === $user->id) {
-
-                $newStatus = request()->input('status');
-                $onlyStatusChanged = array_keys(request()->all()) === ['status'];
-                return $onlyStatusChanged && ($newStatus === 'served' || $newStatus === 'cancelled');
+        // Waiter: update own order to served/cancelled
+        if ($order->user_id === $user->id) {
+            if($user->tokenCan(Abilities::ORDERS_UPDATE_CANCELLED) || $user->tokenCan(Abilities::ORDERS_UPDATE_SERVED)){
+                $status = request()->input('status');
+                return in_array($status, ['served', 'cancelled']);
             }
         }
-        else if($user->tokenCan(Abilities::ORDERS_UPDATE_PENDING)){
-            $newStatus = request()->input('status');
-            $onlyStatusChanged = array_keys(request()->all()) === ['status'];
-            return $onlyStatusChanged && ($newStatus === 'preparing'|| $newStatus === 'completed'|| $newStatus === 'pending');
+
+        // Chef: update pending/preparing/completed
+        if ($user->tokenCan(Abilities::ORDERS_UPDATE_PENDING)) {
+            $status = request()->input('status');
+            return in_array($status, ['pending', 'preparing', 'completed']);
         }
+
         return false;
     }
+
+
 
     /**
      * Determine whether the user can delete the model.

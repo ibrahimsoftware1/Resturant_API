@@ -100,6 +100,7 @@ final class Abilities
                 self::MENU_ITEMS_UPDATE,
                 //orders
                 self::ORDERS_VIEW,
+                self::ORDERS_UPDATE,
                 self::ORDERS_UPDATE_PENDING,
                 self::ORDERS_UPDATE_PREPARING,
                 self::ORDERS_UPDATE_COMPLETED,

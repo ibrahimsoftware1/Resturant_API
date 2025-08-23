@@ -15,7 +15,19 @@ class MenuItemController extends Controller
 {
     use ApiResponse;
     /**
-     * Display a listing of the resource.
+     *  @OA\Get(
+     *      path="/api/menu-items",
+     *      summary="Get all menu items",
+     *      tags={"Menu Items"},
+     *      security={{"sanctum":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="List of menu items",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      )
+     *  )
      */
     public function index()
     {
@@ -30,8 +42,33 @@ class MenuItemController extends Controller
 
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *      path="/api/menu-items",
+     *      summary="Create a menu item",
+     *      tags={"Menu Items"},
+     *      security={{"sanctum":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  required={"name","category_id","price"},
+     *                  @OA\Property(property="name", type="string", example="Pizza"),
+     *                  @OA\Property(property="category_id", type="integer", example=1),
+     *                  @OA\Property(property="price", type="number", format="float", example=12.5)
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Menu item created",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      )
+     * )
      */
+
     public function store(StoreMenuItemRequest $request)
     {
         try {
@@ -46,8 +83,17 @@ class MenuItemController extends Controller
 
 
     /**
-     * Display the specified resource.
-     */
+     * @OA\Get(
+     *      path="/api/menu-items/{id}",
+     *      summary="Get a menu item",
+     *      tags={"Menu Items"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Menu item details"),
+     *     @OA\Response(response=404, description="Menu item not found")
+     *  )
+     *
+ */
     public function show( $menuItem)
     {
         try {
@@ -63,8 +109,23 @@ class MenuItemController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     */
+     * @OA\Put(
+     *      path="/api/menu-items/{id}",
+     *      summary="Update a menu item",
+     *      tags={"Menu Items"},
+     *      security={{"sanctum":{}}},
+     *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              @OA\Property(property="name", type="string", example="Updated Pizza"),
+     *              @OA\Property(property="category_id", type="integer", example=2),
+     *              @OA\Property(property="price", type="number", format="float", example=14.0)
+     *          )
+     *      ),
+     *      @OA\Response(response=200, description="Menu item updated"),
+     *      @OA\Response(response=404, description="Menu item not found")
+     *  )
+ */
     public function update(UpdateMenuItemRequest $request ,$menuItem)
     {
         try{
@@ -80,7 +141,15 @@ class MenuItemController extends Controller
         }
     }
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *       path="/api/menu-items/{id}",
+     *       summary="Delete a menu item",
+     *       tags={"Menu Items"},
+     *       security={{"sanctum":{}}},
+     *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *      @OA\Response(response=200, description="Menu item deleted"),
+     *      @OA\Response(response=404, description="Menu item not found")
+     *  )
      */
     public function destroy($menuItem)
     {

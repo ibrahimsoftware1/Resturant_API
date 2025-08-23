@@ -20,11 +20,14 @@ class OrdersController extends Controller
 
     use ApiResponse;
     /**
-     * Display a listing of the resource.
-     *
-     * you can filter orders by status using the 'status' query parameter.
-     * http://127.0.0.1:8000/api/orders?status=served
-     */
+     * @OA\Get(
+     *      path="/api/orders",
+     *      summary="Get all orders",
+     *      tags={"Orders"},
+     *      security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="List of orders")
+     * )
+ */
     public function index(OrdersFilter $filters){
 
         $this->authorize('viewAny', Orders::class);
@@ -41,26 +44,57 @@ class OrdersController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     *  @OA\Post(
+     *      path="/api/orders",
+     *      summary="Create an order",
+     *      tags={"Orders"},
+     *      security={{"sanctum":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"table_id","items"},
+     *              @OA\Property(property="table_id", type="integer", example=1),
+     *              @OA\Property(
+     *                  property="items",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="menu_item_id", type="integer", example=1),
+     *                      @OA\Property(property="quantity", type="integer", example=2)
+     *                  )
+     *             )
+     *          )
+     *      ),
+     *      @OA\Response(response=201, description="Order created")
+     *  )
+     *
      */
     public function store(StoreOrdersRequest $request)
     {
+        $this->authorize('create', Orders::class);
         $orders=Orders::create($request->validated());
         return new OrderResource($orders);
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *      path="/api/orders/{id}",
+     *      summary="Get a single order",
+     *      tags={"Orders"},
+     *      security={{"sanctum":{}}},
+     *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *      @OA\Response(response=200, description="Order details"),
+     *      @OA\Response(response=404, description="Order not found")
+     *  )
      */
-    public function show($orders)
+    public function show($order)
     {
         try {
-            $myOrders= Orders::findOrFail($orders);
+            $myOrders= Orders::findOrFail($order);
             $this->authorize('view', $myOrders);
             return new OrderResource($myOrders);
 
         }catch (ModelNotFoundException $exception){
-            return $this->error('the order with id '.$orders.' not found' , 404);
+            return $this->error('the order with id '.$order.' not found' , 404);
         }catch (AuthorizationException $exception){
             return $this->error('You are not Allowed to view this order', 403);
         }
@@ -69,37 +103,52 @@ class OrdersController extends Controller
 
 
     /**
-     * Update the specified resource in storage.
+     *  @OA\Put(
+     *      path="/api/orders/{id}",
+     *      summary="Update an order",
+     *      tags={"Orders"},
+     *      security={{"sanctum":{}}},
+     *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *      @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              @OA\Property(property="status", type="string", example="served")
+     *          )
+     *      ),
+     *      @OA\Response(response=200, description="Order updated"),
+     *      @OA\Response(response=403, description="Not allowed"),
+     *      @OA\Response(response=404, description="Order not found")
+     *  )
      */
-    public function update(UpdateOrdersRequest $request,$orders)
+    public function update(UpdateOrdersRequest $request, Orders $order)
     {
-        try {
-            $myOrders= Orders::findOrFail($orders);
-            $this->authorize('update', $myOrders);
+        $this->authorize('update', $order);
 
-                $myOrders->update($request->validated());
-                return new OrderResource($myOrders);
+        $order->update($request->validated());
 
-        }catch (ModelNotFoundException $exception){
-            return ['the order with id '.$orders.' not found' , 404];
-        }catch (AuthorizationException $exception){
-            return ['You are not Allowed to update this order', 403];
-        }
+        return new OrderResource($order);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *      path="/api/orders/{id}",
+     *      summary="Delete an order",
+     *      tags={"Orders"},
+     *      security={{"sanctum":{}}},
+     *      @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *      @OA\Response(response=200, description="Order deleted"),
+     *      @OA\Response(response=404, description="Order not found")
+     *  )
      */
-    public function destroy($orders)
+    public function destroy($order)
     {
         try {
-            $myOrders = Orders::findOrFail($orders);
+            $myOrders = Orders::findOrFail($order);
             $this->authorize('delete', $myOrders);
             $myOrders->delete();
-            return $this->error('the order was deleted successfully', 200);
+            return $this->ok('the order was deleted successfully', 200);
 
         }catch (ModelNotFoundException $exception){
-            return $this->error('the order with id '.$orders.' not found' , 404);
+            return $this->error('the order with id '.$order.' not found' , 404);
         }catch (AuthorizationException $exception){
             return $this->error('You are not Allowed to delete this order', 403);
         }

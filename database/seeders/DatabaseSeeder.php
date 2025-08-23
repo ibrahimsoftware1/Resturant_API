@@ -22,17 +22,19 @@ class DatabaseSeeder extends Seeder
     {
 
 
-        // Drop all existing tables except 'roles'
 
 
-        Role::insert([
-            ['name' => 'admin'],
-            ['name' => 'manager'],
-            ['name' => 'chef'],
-            ['name' => 'waiter'],
+//        // Create roles with fixed IDs
+//        Role::insert([
+//            ['id' => 1, 'name' => 'admin'],
+//            ['id' => 2, 'name' => 'manager'],
+//            ['id' => 3, 'name' => 'chef'],
+//            ['id' => 4, 'name' => 'waiter'],
+//        ]);
+
+        User::factory(10)->create([
+            'role_id' => fn() => fake()->numberBetween(1, 4),
         ]);
-
-        User::factory(10)->create();
 
         // Create categories
         $categories = Category::factory(3)->create();

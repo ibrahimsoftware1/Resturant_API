@@ -13,6 +13,27 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     use ApiResponse;
+
+
+
+    /**
+     *
+     * @OA\Post(
+     * path="/api/login",
+     * summary="Login a user",
+     * tags={"Auth"},
+     * @OA\RequestBody(
+     * required=true,
+     * @OA\JsonContent(
+     * required={"email","password"},
+     * @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     * @OA\Property(property="password", type="string", format="password", example="secret123")
+     * )
+     * ),
+     * @OA\Response(response=200, description="Authenticated successfully"),
+     * @OA\Response(response=401, description="Invalid credentials")
+     * )
+     **/
     public function login(LoginUserRequest $request){
 
         if(!Auth::attempt($request->only('email','password'))){
@@ -30,13 +51,41 @@ class AuthController extends Controller
         );
 
     }
-
+/**
+* @OA\Post(
+*     path="/api/logout",
+*     summary="Logout the authenticated user",
+*     tags={"Auth"},
+*     security={{"sanctum":{}}},
+ *     @OA\Response(response=200, description="Logged out successfully")
+* )
+ */
     public function logout(Request $request){
 
         $request->user()->currentAccessToken()->delete();
         return $this->ok('You logged out successfully');
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/register",
+     *     summary="Register a new user",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="secret123")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="User registered successfully"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     *
+     * */
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -64,3 +113,4 @@ class AuthController extends Controller
     }
 
 }
+
